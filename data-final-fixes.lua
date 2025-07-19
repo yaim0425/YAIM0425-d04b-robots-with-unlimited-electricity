@@ -54,11 +54,8 @@ function This_MOD.setting_mod()
     table.insert(This_MOD.types, "logistic-robot")
 
     --- Indicador de mod
-    This_MOD.indicator = {
-        icon = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon,
-        shift = { 14, -4 },
-        scale = 0.15
-    }
+    local BackColor = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
+    This_MOD.indicator = { icon = BackColor, scale = 0.15, shift = { 14, -4 } }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
@@ -154,7 +151,7 @@ function This_MOD.build_info()
                 --- Guardar la información
                 Space.item = Item
                 Space.entity = robot
-                Space.recipe = GPrefix.recipes[result.name][1]
+                Space.recipe = GPrefix.recipes[Item.name][1]
                 Space.tech = GPrefix.get_technology(Space.recipe)
             until true
         end
