@@ -284,12 +284,12 @@ function This_MOD.create_tech(space, new_recipe)
 
     --- Dividir el nombre por guiones
     if GPrefix.has_id(Tech_name, "0300") then
-        local _, name = GPrefix.get_id_and_name(space.tech.name)
+        local _, Name = GPrefix.get_id_and_name(space.tech.name)
         table.insert(
             Tech.prerequisites,
             GPrefix.name .. "-" ..
             This_MOD.id .. "-" ..
-            name
+            Name
         )
     end
 
