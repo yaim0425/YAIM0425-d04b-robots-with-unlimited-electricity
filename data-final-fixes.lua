@@ -283,16 +283,14 @@ function This_MOD.create_tech(space, new_recipe)
     } }
 
     --- Dividir el nombre por guiones
-    local id, name = space.tech.name:match(GPrefix.name_pattern .. "(.+)")
-    if id then
-        if id == "0300" then
-            table.insert(
-                Tech.prerequisites,
-                GPrefix.name .. "-" ..
-                This_MOD.id .. "-" ..
-                name
-            )
-        end
+    if GPrefix.has_id(Tech_name, "0300") then
+        local _, name = space.tech.name:match(GPrefix.name_pattern .. "(.+)")
+        table.insert(
+            Tech.prerequisites,
+            GPrefix.name .. "-" ..
+            This_MOD.id .. "-" ..
+            name
+        )
     end
 
     --- Crear la nueva tecnología
