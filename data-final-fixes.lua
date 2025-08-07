@@ -262,39 +262,19 @@ function This_MOD.create_tech(space, new_recipe)
     --- Validación
     if not space.tech then return end
 
-    --- Nombre de la nueva tecnología
-    local Tech_name = space.tech and space.tech.name or ""
-    Tech_name = GPrefix.delete_prefix(Tech_name)
-    Tech_name = This_MOD.prefix .. Tech_name
-
-    --- La tecnología ya existe
-    if GPrefix.tech.raw[Tech_name] then
-        GPrefix.add_recipe_to_tech(Tech_name, new_recipe)
-        return
-    end
-
-    --- Preprar la nueva tecnología
-    local Tech = util.copy(space.tech)
-    Tech.prerequisites = { Tech.name }
-    Tech.name = Tech_name
-    Tech.effects = { {
-        type = "unlock-recipe",
-        recipe = new_recipe.name
-    } }
+    --- Crear la tecnología
+    local Tech = GPrefix.create_tech(This_MOD.prefix, space.tech, new_recipe)
 
     --- Dividir el nombre por guiones
-    if GPrefix.has_id(Tech_name, "0300") then
+    if GPrefix.has_id(space.tech.name, "0300") then
         local _, Name = GPrefix.get_id_and_name(space.tech.name)
         table.insert(
             Tech.prerequisites,
-            GPrefix.name .. "-" ..
-            This_MOD.id .. "-" ..
+            GPrefix.name .. "-" .. 
+            This_MOD.id .. "-" .. 
             Name
         )
     end
-
-    --- Crear la nueva tecnología
-    GPrefix.extend(Tech)
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
