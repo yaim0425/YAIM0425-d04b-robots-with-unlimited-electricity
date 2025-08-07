@@ -55,7 +55,7 @@ function This_MOD.setting_mod()
 
     --- Indicador de mod
     local BackColor = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
-    This_MOD.indicator = { icon = BackColor, scale = 0.15, shift = { 14, -4 } }
+    This_MOD.indicator = { icon = BackColor, scale = 0.15, shift = { 12, 0 } }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
