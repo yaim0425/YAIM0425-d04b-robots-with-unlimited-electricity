@@ -54,8 +54,9 @@ function This_MOD.setting_mod()
     table.insert(This_MOD.types, "logistic-robot")
 
     --- Indicador de mod
-    local BackColor = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
-    This_MOD.indicator = { icon = BackColor, scale = 0.15, shift = { 12, 0 } }
+    local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
+    This_MOD.indicator = { icon = Indicator, scale = 0.15, shift = { 12, 0 } }
+    This_MOD.tech_icon = { icon = Indicator, scale = 0.50, shift = { 50, 0 } }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
@@ -264,6 +265,7 @@ function This_MOD.create_tech(space, new_recipe)
 
     --- Crear la tecnología
     local Tech = GPrefix.create_tech(This_MOD.prefix, space.tech, new_recipe)
+    table.insert(Tech.icons, This_MOD.tech_icon)
 
     --- Dividir el nombre por guiones
     if GPrefix.has_id(space.tech.name, "0300") then
