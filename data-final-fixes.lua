@@ -181,15 +181,23 @@ function This_MOD.create_recipe(space)
     local Order = tonumber(Recipe.order) + 1
     Recipe.order = GPrefix.pad_left_zeros(#Recipe.order, Order)
 
-    Recipe.ingredients = util.copy(This_MOD.ingredients)
-    table.insert(
-        Recipe.ingredients,
-        {
-            type = "item",
-            name = space.item.name,
-            amount = 1
+    if GPrefix.has_id(space.item.name, "0300") then
+        Recipe.ingredients = {
+            { type = "item", amount = 1, name = "" },
+            { type = "item", amount = 1, name = space.item.name }
         }
-    )
+        Recipe.ingredients[1].name = string.gsub(space.item.name, "%-%d%d%d%d%-", "-" .. This_MOD.id .. "-")
+    else
+        Recipe.ingredients = util.copy(This_MOD.ingredients)
+        table.insert(
+            Recipe.ingredients,
+            {
+                type = "item",
+                name = space.item.name,
+                amount = 1
+            }
+        )
+    end
 
     Recipe.results = { {
         type = "item",
@@ -270,12 +278,13 @@ function This_MOD.create_tech(space, new_recipe)
     --- Dividir el nombre por guiones
     if GPrefix.has_id(space.tech.name, "0300") then
         local _, Name = GPrefix.get_id_and_name(space.tech.name)
-        table.insert(
-            Tech.prerequisites,
-            GPrefix.name .. "-" .. 
-            This_MOD.id .. "-" .. 
+        Name =
+            GPrefix.name .. "-" ..
+            This_MOD.id .. "-" ..
             Name
-        )
+        if not GPrefix.get_key(Tech.prerequisites, Name) then
+            table.insert(Tech.prerequisites, Name)
+        end
     end
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
