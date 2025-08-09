@@ -54,8 +54,13 @@ function This_MOD.setting_mod()
     table.insert(This_MOD.types, "logistic-robot")
 
     --- Indicador de mod
-    local BackColor = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
-    This_MOD.indicator = { icon = BackColor, scale = 0.15, shift = { 14, -4 } }
+    local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
+
+    This_MOD.icon = {}
+    This_MOD.icon.tech = { icon = Indicator, scale = 0.50, shift = { 50, 0 } }
+    This_MOD.icon.tech_bg = { icon = GPrefix.color.black, scale = 0.50, shift = { 50, 0 } }
+    This_MOD.icon.other = { icon = Indicator, scale = 0.15, shift = { 12, 0 } }
+    This_MOD.icon.other_bg = { icon = GPrefix.color.black, scale = 0.15, shift = { 12, 0 } }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
@@ -175,20 +180,29 @@ function This_MOD.create_recipe(space)
     Recipe.name = This_MOD.prefix .. Recipe.name
 
     Recipe.icons = util.copy(space.item.icons)
-    table.insert(Recipe.icons, This_MOD.indicator)
+    table.insert(Recipe.icons, This_MOD.icon.other_bg)
+    table.insert(Recipe.icons, This_MOD.icon.other)
 
     local Order = tonumber(Recipe.order) + 1
     Recipe.order = GPrefix.pad_left_zeros(#Recipe.order, Order)
 
-    Recipe.ingredients = util.copy(This_MOD.ingredients)
-    table.insert(
-        Recipe.ingredients,
-        {
-            type = "item",
-            name = space.item.name,
-            amount = 1
+    if GPrefix.has_id(space.item.name, "0300") then
+        Recipe.ingredients = {
+            { type = "item", amount = 1, name = "" },
+            { type = "item", amount = 1, name = space.item.name }
         }
-    )
+        Recipe.ingredients[1].name = string.gsub(space.item.name, "%-%d%d%d%d%-", "-" .. This_MOD.id .. "-")
+    else
+        Recipe.ingredients = util.copy(This_MOD.ingredients)
+        table.insert(
+            Recipe.ingredients,
+            {
+                type = "item",
+                name = space.item.name,
+                amount = 1
+            }
+        )
+    end
 
     Recipe.results = { {
         type = "item",
@@ -219,7 +233,8 @@ function This_MOD.create_item(space)
     Item.order = GPrefix.pad_left_zeros(#Item.order, Order)
 
     --- Agregar el indicador
-    table.insert(Item.icons, This_MOD.indicator)
+    table.insert(Item.icons, This_MOD.icon.other_bg)
+    table.insert(Item.icons, This_MOD.icon.other)
 
     --- Crear el prototipo
     GPrefix.extend(Item)
@@ -240,7 +255,8 @@ function This_MOD.create_entity(space)
     Result.name = This_MOD.prefix .. GPrefix.delete_prefix(Result.name)
 
     --- Agregar el indicador
-    table.insert(Entity.icons, This_MOD.indicator)
+    table.insert(Entity.icons, This_MOD.icon.other_bg)
+    table.insert(Entity.icons, This_MOD.icon.other)
 
     --- Retirar el gasto de energia
     Entity.energy_per_tick = nil
@@ -262,39 +278,22 @@ function This_MOD.create_tech(space, new_recipe)
     --- Validación
     if not space.tech then return end
 
-    --- Nombre de la nueva tecnología
-    local Tech_name = space.tech and space.tech.name or ""
-    Tech_name = GPrefix.delete_prefix(Tech_name)
-    Tech_name = This_MOD.prefix .. Tech_name
-
-    --- La tecnología ya existe
-    if GPrefix.tech.raw[Tech_name] then
-        GPrefix.add_recipe_to_tech(Tech_name, new_recipe)
-        return
-    end
-
-    --- Preprar la nueva tecnología
-    local Tech = util.copy(space.tech)
-    Tech.prerequisites = { Tech.name }
-    Tech.name = Tech_name
-    Tech.effects = { {
-        type = "unlock-recipe",
-        recipe = new_recipe.name
-    } }
+    --- Crear la tecnología
+    local Tech = GPrefix.create_tech(This_MOD.prefix, space.tech, new_recipe)
+    table.insert(Tech.icons, This_MOD.icon.tech_bg)
+    table.insert(Tech.icons, This_MOD.icon.tech)
 
     --- Dividir el nombre por guiones
-    if GPrefix.has_id(Tech_name, "0300") then
+    if GPrefix.has_id(space.tech.name, "0300") then
         local _, Name = GPrefix.get_id_and_name(space.tech.name)
-        table.insert(
-            Tech.prerequisites,
+        Name =
             GPrefix.name .. "-" ..
             This_MOD.id .. "-" ..
             Name
-        )
+        if not GPrefix.get_key(Tech.prerequisites, Name) then
+            table.insert(Tech.prerequisites, Name)
+        end
     end
-
-    --- Crear la nueva tecnología
-    GPrefix.extend(Tech)
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
