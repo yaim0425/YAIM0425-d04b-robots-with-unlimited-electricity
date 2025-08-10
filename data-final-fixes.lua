@@ -20,9 +20,6 @@ function This_MOD.start()
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    --- Ingredientes a usar
-    This_MOD.build_ingredients()
-
     --- Entidades a afectar
     This_MOD.build_info()
 
