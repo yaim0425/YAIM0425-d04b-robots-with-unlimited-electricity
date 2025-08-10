@@ -106,11 +106,13 @@ function This_MOD.create_recipe(space)
 
     --- Duplicar la receta
     local Recipe = util.copy(space.recipe)
-    Recipe.main_product = nil
 
     --- Actualizar propiedades
     Recipe.name = GPrefix.delete_prefix(space.recipe.name)
     Recipe.name = This_MOD.prefix .. Recipe.name
+
+    Recipe.main_product = nil
+    Recipe.energy_required = 15 * 60
 
     Recipe.icons = util.copy(space.item.icons)
     table.insert(Recipe.icons, This_MOD.icon.other_bg)
@@ -119,19 +121,22 @@ function This_MOD.create_recipe(space)
     local Order = tonumber(Recipe.order) + 1
     Recipe.order = GPrefix.pad_left_zeros(#Recipe.order, Order)
 
+    Recipe.ingredients = { {
+        type = "item",
+        name = space.item.name,
+        amount = 1
+    } }
+
     if GPrefix.has_id(space.item.name, "0300") then
-        Recipe.ingredients = {
-            { type = "item", amount = 1, name = "" },
-            { type = "item", amount = 1, name = space.item.name }
-        }
-        Recipe.ingredients[1].name = string.gsub(space.item.name, "%-%d%d%d%d%-", "-" .. This_MOD.id .. "-")
-    else
-        Recipe.ingredients = util.copy(This_MOD.ingredients)
         table.insert(
             Recipe.ingredients,
             {
                 type = "item",
-                name = space.item.name,
+                name = string.gsub(
+                    space.item.name,
+                    "%-%d%d%d%d%-",
+                    "-" .. This_MOD.id .. "-"
+                ),
                 amount = 1
             }
         )
@@ -143,10 +148,7 @@ function This_MOD.create_recipe(space)
         amount = 1
     } }
 
-    --- Crear la receta
-    GPrefix.extend(Recipe)
-
-    --- Agregar a la tecnología
+    --- Agregar la receta a la tecnología
     This_MOD.create_tech(space, Recipe)
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -211,21 +213,21 @@ function This_MOD.create_tech(space, new_recipe)
     --- Validación
     if not space.tech then return end
 
-    --- Crear la tecnología
+    --- Duplicar la tecnología
     local Tech = GPrefix.create_tech(This_MOD.prefix, space.tech, new_recipe)
+
+    --- Agregar indicadores a la tecnología
     table.insert(Tech.icons, This_MOD.icon.tech_bg)
     table.insert(Tech.icons, This_MOD.icon.tech)
 
-    --- Dividir el nombre por guiones
+    --- Varios prerequisitos
     if GPrefix.has_id(space.tech.name, "0300") then
-        local _, Name = GPrefix.get_id_and_name(space.tech.name)
-        Name =
-            GPrefix.name .. "-" ..
-            This_MOD.id .. "-" ..
-            Name
-        if not GPrefix.get_key(Tech.prerequisites, Name) then
-            table.insert(Tech.prerequisites, Name)
-        end
+        local Name = string.gsub(
+            space.tech.name,
+            "%-%d%d%d%d%-",
+            "-" .. This_MOD.id .. "-"
+        )
+        table.insert(Tech.prerequisites, Name)
     end
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
