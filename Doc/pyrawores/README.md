@@ -5,7 +5,3 @@
 ![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(5).png)
 ![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(6).png)
 ![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(7).png)
-![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(8).png)
-![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(9).png)
-![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(10).png)
-![](https://github.com/yaim0425/zzzYAIM0425-0400-robots-with-unlimited-electricity/raw/main/Doc/pyrawores/(11).png)  
