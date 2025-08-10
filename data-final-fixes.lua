@@ -46,14 +46,10 @@ function This_MOD.setting_mod()
 
     --- Información de referencia
     This_MOD.info = {}
-    This_MOD.ingredients = {}
+    This_MOD.types = { "construction-robot", "logistic-robot" }
+    This_MOD.resistances = {}
 
-    --- Referencia
-    This_MOD.types = {}
-    table.insert(This_MOD.types, "construction-robot")
-    table.insert(This_MOD.types, "logistic-robot")
-
-    --- Indicador de mod
+    --- Indicadores del MOD
     local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
 
     This_MOD.icon = {
