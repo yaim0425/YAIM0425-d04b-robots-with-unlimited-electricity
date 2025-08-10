@@ -56,11 +56,12 @@ function This_MOD.setting_mod()
     --- Indicador de mod
     local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
 
-    This_MOD.icon = {}
-    This_MOD.icon.tech = { icon = Indicator, scale = 0.50, shift = { 50, 0 } }
-    This_MOD.icon.tech_bg = { icon = GPrefix.color.black, scale = 0.50, shift = { 50, 0 } }
-    This_MOD.icon.other = { icon = Indicator, scale = 0.15, shift = { 12, 0 } }
-    This_MOD.icon.other_bg = { icon = GPrefix.color.black, scale = 0.15, shift = { 12, 0 } }
+    This_MOD.icon = {
+        tech = { icon = Indicator, scale = 0.50, shift = { 50, 0 } },
+        tech_bg = { icon = GPrefix.color.black, scale = 0.50, shift = { 50, 0 } },
+        other = { icon = Indicator, scale = 0.15, shift = { 12, 0 } },
+        other_bg = { icon = GPrefix.color.black, scale = 0.15, shift = { 12, 0 } }
+    }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
