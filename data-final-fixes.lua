@@ -213,22 +213,25 @@ function This_MOD.create_tech(space, new_recipe)
     --- Validación
     if not space.tech then return end
 
-    --- Duplicar la tecnología
-    local Tech = GPrefix.create_tech(This_MOD.prefix, space.tech, new_recipe)
-
-    --- Agregar indicadores a la tecnología
-    table.insert(Tech.icons, This_MOD.icon.tech_bg)
-    table.insert(Tech.icons, This_MOD.icon.tech)
+    --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     --- Varios prerequisitos
+    local Info = { prerequisites = {} }
     if GPrefix.has_id(space.tech.name, "0300") then
         local Name = string.gsub(
             space.tech.name,
             "%-%d%d%d%d%-",
             "-" .. This_MOD.id .. "-"
         )
-        table.insert(Tech.prerequisites, Name)
+        table.insert(Info.prerequisites, Name)
     end
+
+    --- Duplicar la tecnología
+    local Tech = GPrefix.create_tech(This_MOD.prefix, space.tech, new_recipe, Info)
+
+    --- Agregar indicadores a la tecnología
+    table.insert(Tech.icons, This_MOD.icon.tech_bg)
+    table.insert(Tech.icons, This_MOD.icon.tech)
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
