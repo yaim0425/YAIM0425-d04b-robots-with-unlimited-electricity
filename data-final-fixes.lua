@@ -216,7 +216,7 @@ function This_MOD.create_tech(space, new_recipe)
     --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     --- Varios prerequisitos
-    local Info = { prerequisites = {} }
+    local Info = { prerequisites = { space.tech.name } }
     if GPrefix.has_id(space.tech.name, "0300") then
         local Name = string.gsub(
             space.tech.name,
