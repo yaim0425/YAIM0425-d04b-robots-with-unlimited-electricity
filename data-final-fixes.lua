@@ -33,27 +33,26 @@ function This_MOD.start()
     --- Obtener los elementos
     This_MOD.get_elements()
 
-    -- --- Modificar los elementos
-    -- for iKey, spaces in pairs(This_MOD.to_be_processed) do
-    --     for jKey, space in pairs(spaces) do
-    --         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Modificar los elementos
+    for iKey, spaces in pairs(This_MOD.to_be_processed) do
+        for jKey, space in pairs(spaces) do
+            --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    --         --- Marcar como procesado
-    --         This_MOD.processed[iKey] = This_MOD.processed[iKey] or {}
-    --         This_MOD.processed[iKey][jKey] = true
+            --- Marcar como procesado
+            This_MOD.processed[iKey] = This_MOD.processed[iKey] or {}
+            This_MOD.processed[iKey][jKey] = true
 
-    --         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+            --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    --         -- --- Crear los elementos
-    --         -- This_MOD.create_subgroup(space)
-    --         -- This_MOD.create_item(space)
-    --         -- This_MOD.create_entity(space)
-    --         -- This_MOD.create_recipe(space)
-    --         -- This_MOD.create_tech(space)
+            --- Crear los elementos
+            This_MOD.create_item(space)
+            This_MOD.create_entity(space)
+            -- This_MOD.create_recipe(space)
+            -- This_MOD.create_tech(space)
 
-    --         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-    --     end
-    -- end
+            --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+        end
+    end
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
@@ -93,11 +92,11 @@ function This_MOD.setting_mod()
     This_MOD.setting = GMOD.setting[This_MOD.id]
 
     --- Indicador del mod
-    local Indicator = data.raw["virtual-signal"]["signal-heart"].icons[1].icon
-    This_MOD.indicator = { icon = Indicator, scale = 0.15, shift = { 0, -12 } }
-    This_MOD.indicator_bg = { icon = GMOD.color.black, scale = 0.15, shift = { 0, -12 } }
-    This_MOD.indicator_tech = { icon = Indicator, scale = 0.50, shift = { 0, -50 } }
-    This_MOD.indicator_tech_bg = { icon = GMOD.color.black, scale = 0.50, shift = { 0, -50 } }
+    local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
+    This_MOD.indicator = { icon = Indicator, scale = 0.15, shift = { 12, 0 } }
+    This_MOD.indicator_bg = { icon = GMOD.color.black, scale = 0.15, shift = { 12, 0 } }
+    This_MOD.indicator_tech = { icon = Indicator, scale = 0.50, shift = { 50, 0 } }
+    This_MOD.indicator_tech_bg = { icon = GMOD.color.black, scale = 0.50, shift = { 50, 0 } }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -108,15 +107,6 @@ function This_MOD.setting_mod()
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     --- Valores de la referencia en este MOD
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-    --- Daños a procesar
-    This_MOD.damages = {}
-    for damage, _ in pairs(data.raw["damage-type"]) do
-        table.insert(This_MOD.damages, damage)
-    end
-
-    --- Digitos necesarios para ordenar
-    This_MOD.damages_digits = GMOD.digit_count(#This_MOD.damages) + 1
 
     --- Tipos a afectar
     This_MOD.types = {
@@ -143,7 +133,7 @@ function This_MOD.get_elements()
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     local function valide(item, entity)
-        --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+        --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
         --- Validación
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -179,10 +169,16 @@ function This_MOD.get_elements()
         Space.tech = GMOD.get_technology(Space.recipe)
         Space.recipe = Space.recipe and Space.recipe[1] or nil
 
+        Space.part =
+            GMOD.get_id_and_name(entity.name) or
+            { ids = "-", name = entity.name }
         Space.prefix =
             GMOD.name ..
-            (GMOD.get_id_and_name(entity.name) or { ids = "-" }).ids ..
-            This_MOD.id .. "-" .. entity.name .. "-"
+            Space.part.ids ..
+            This_MOD.id .. "-" ..
+            Space.part.name
+
+        Space.part = nil
 
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -219,6 +215,126 @@ end
 
 ---------------------------------------------------------------------------
 
+function This_MOD.create_item(space)
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Validación
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    if not space.item then return end
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Duplicar el elemento
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    local Item = GMOD.copy(space.item)
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Cambiar algunas propiedades
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    Item.name = space.prefix
+
+    Item.localised_description = { "" }
+
+    Item.localised_name = GMOD.copy(space.entity.localised_name)
+
+    table.insert(Item.icons, This_MOD.indicator_bg)
+    table.insert(Item.icons, This_MOD.indicator)
+
+    Item.place_result = Item.name
+
+    local Order = tonumber(Item.order) + 1
+    Item.order = GMOD.pad_left_zeros(#Item.order, Order)
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Crear el prototipo
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    GMOD.extend(Item)
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+end
+
+function This_MOD.create_entity(space)
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Validación
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    if not space.entity then return end
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Duplicar el elemento
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    local Entity = GMOD.copy(space.entity)
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Cambiar algunas propiedades
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    Entity.name = space.prefix
+
+    Entity.localised_description = { "" }
+
+    Entity.localised_name = GMOD.copy(space.entity.localised_name)
+
+    Entity.icons = GMOD.copy(space.item.icons)
+    table.insert(Entity.icons, This_MOD.indicator_bg)
+    table.insert(Entity.icons, This_MOD.indicator)
+
+    Entity.minable.results = { {
+        type = "item",
+        name = Entity.name,
+        amount = 1
+    } }
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Crear el prototipo
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    GMOD.extend(Entity)
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+end
+
+---------------------------------------------------------------------------
+
 
 
 
@@ -231,4 +347,4 @@ This_MOD.start()
 
 ---------------------------------------------------------------------------
 GMOD.var_dump(This_MOD)
-ERROR()
+-- ERROR()
