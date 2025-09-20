@@ -318,6 +318,10 @@ function This_MOD.create_entity(space)
         amount = 1
     } }
 
+    Entity.energy_per_tick = nil
+    Entity.energy_per_move = nil
+    Entity.max_energy = "1J"
+
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
