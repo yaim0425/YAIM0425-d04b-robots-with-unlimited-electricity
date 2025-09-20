@@ -445,7 +445,9 @@ function This_MOD.create_tech(space)
 
     Tech.name = space.prefix .. "-tech"
 
-    Tech.icons = GMOD.copy(space.item.icons)
+    if not GMOD.has_id(space.tech.name, "i5MOD03") then
+        Tech.icons = GMOD.copy(space.item.icons)
+    end
     table.insert(Tech.icons, This_MOD.indicator_tech_bg)
     table.insert(Tech.icons, This_MOD.indicator_tech)
 
