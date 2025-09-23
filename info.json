@@ -1,12 +1,12 @@
 {
-  "name": "YAIM0425-i5MOD04-robots-with-unlimited-electricity",
+  "name": "YAIM0425-i0MOD05-robots-with-unlimited-electricity",
   "version": "0.0.1",
-  "title": "YAIM0425 i5MOD04 Robots with unlimited electricity",
+  "title": "YAIM0425 i0MOD05 Robots with unlimited electricity",
   "author": "YAIM0425",
   "factorio_version": "2.0",
   "description": "Create a copy of the construction and logistics robots that do not consume electricity, but it is necessary to charge the robots to start. [[I accept suggestions]]",
-  "homepage": "https://github.com/yaim0425/YAIM0425-i5MOD04-robots-with-unlimited-electricity",
+  "homepage": "https://github.com/yaim0425/YAIM0425-i0MOD05-robots-with-unlimited-electricity",
   "dependencies": [
-    "YAIM0425-i5MOD50-core"
+    "YAIM0425-i0MOD00-core"
   ]
 }
