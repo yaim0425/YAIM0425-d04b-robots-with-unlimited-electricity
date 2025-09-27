@@ -34,14 +34,8 @@ function This_MOD.start()
     This_MOD.get_elements()
 
     --- Modificar los elementos
-    for iKey, spaces in pairs(This_MOD.to_be_processed) do
-        for jKey, space in pairs(spaces) do
-            --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-            --- Marcar como procesado
-            This_MOD.processed[iKey] = This_MOD.processed[iKey] or {}
-            This_MOD.processed[iKey][jKey] = true
-
+    for _, spaces in pairs(This_MOD.to_be_processed) do
+        for _, space in pairs(spaces) do
             --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
             --- Crear los elementos
@@ -85,7 +79,7 @@ function This_MOD.setting_mod()
     This_MOD.to_be_processed = {}
 
     --- Validar si se cargó antes
-    if This_MOD.processed then return end
+    if This_MOD.setting then return end
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -97,16 +91,15 @@ function This_MOD.setting_mod()
     --- Valores de la referencia en todos los MODs
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    --- Contenedor de los elementos que el MOD modoficó
-    This_MOD.processed = {}
-
     --- Cargar la configuración
-    This_MOD.setting = GMOD.setting[This_MOD.id]
+    This_MOD.setting = GMOD.setting[This_MOD.id] or {}
 
     --- Indicador del mod
     local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
+
     This_MOD.indicator = { icon = Indicator, scale = 0.15, shift = { 12, 0 } }
     This_MOD.indicator_bg = { icon = GMOD.color.black, scale = 0.15, shift = { 12, 0 } }
+
     This_MOD.indicator_tech = { icon = Indicator, scale = 0.50, shift = { 50, 0 } }
     This_MOD.indicator_tech_bg = { icon = GMOD.color.black, scale = 0.50, shift = { 50, 0 } }
 
@@ -144,7 +137,7 @@ function This_MOD.get_elements()
     --- Función para analizar cada entidad
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    local function valide_entity(item, entity)
+    local function validate_entity(item, entity)
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
         --- Validación
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -156,12 +149,17 @@ function This_MOD.get_elements()
         if not This_MOD.types[entity.type] then return end
 
         --- Validar si ya fue procesado
-        if
-            This_MOD.processed[entity.type] and
-            This_MOD.processed[entity.type][item.name]
-        then
-            return
-        end
+        if GMOD.has_id(entity.name, This_MOD.id) then return end
+        local That_MOD =
+            GMOD.get_id_and_name(entity.name) or
+            { ids = "-", name = entity.name }
+
+        local Name =
+            GMOD.name .. That_MOD.ids ..
+            This_MOD.id .. "-" ..
+            That_MOD.name
+
+        if GMOD.entities[Name] ~= nil then return end
 
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -176,21 +174,11 @@ function This_MOD.get_elements()
         local Space = {}
         Space.item = item
         Space.entity = entity
+        Space.name = Name
 
         Space.recipe = GMOD.recipes[Space.item.name]
         Space.tech = GMOD.get_technology(Space.recipe)
         Space.recipe = Space.recipe and Space.recipe[1] or nil
-
-        Space.part =
-            GMOD.get_id_and_name(entity.name) or
-            { ids = "-", name = entity.name }
-        Space.prefix =
-            GMOD.name ..
-            Space.part.ids ..
-            This_MOD.id .. "-" ..
-            Space.part.name
-
-        Space.part = nil
 
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -219,7 +207,7 @@ function This_MOD.get_elements()
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
     for item_name, entity in pairs(GMOD.entities) do
-        valide_entity(GMOD.items[item_name], entity)
+        validate_entity(GMOD.items[item_name], entity)
     end
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -256,17 +244,21 @@ function This_MOD.create_item(space)
     --- Cambiar algunas propiedades
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    Item.name = space.prefix
+    --- Nombre a usar
+    Item.name = space.name
 
+    --- Apodo y descripción
+    Item.localised_name = GMOD.copy(space.entity.localised_name)
     Item.localised_description = { "" }
 
-    Item.localised_name = GMOD.copy(space.entity.localised_name)
-
+    --- Agregar indicador del MOD
     table.insert(Item.icons, This_MOD.indicator_bg)
     table.insert(Item.icons, This_MOD.indicator)
 
-    Item.place_result = Item.name
+    --- Entidad a crear
+    Item.place_result = space.name
 
+    --- Actualizar el order
     local Order = tonumber(Item.order) + 1
     Item.order = GMOD.pad_left_zeros(#Item.order, Order)
 
@@ -314,22 +306,26 @@ function This_MOD.create_entity(space)
     --- Cambiar algunas propiedades
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    Entity.name = space.prefix
+    --- Nombre
+    Entity.name = space.name
 
+    --- Nombre
+    Entity.localised_name = GMOD.copy(space.entity.localised_name)
     Entity.localised_description = { "" }
 
-    Entity.localised_name = GMOD.copy(space.entity.localised_name)
-
+    --- Agregar indicador del MOD
     Entity.icons = GMOD.copy(space.item.icons)
     table.insert(Entity.icons, This_MOD.indicator_bg)
     table.insert(Entity.icons, This_MOD.indicator)
 
+    --- Objeto a minar
     Entity.minable.results = { {
         type = "item",
-        name = Entity.name,
+        name = space.name,
         amount = 1
     } }
 
+    --- Efecto de este MOD
     Entity.energy_per_tick = nil
     Entity.energy_per_move = nil
     Entity.max_energy = "1J"
@@ -378,33 +374,38 @@ function This_MOD.create_recipe(space)
     --- Cambiar algunas propiedades
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    Recipe.name = space.prefix
+    --- Nombre
+    Recipe.name = space.name
 
+    --- Elimnar propiedades inecesarias
     Recipe.main_product = nil
+
+    --- Productividad
+    Recipe.allow_productivity = true
     Recipe.maximum_productivity = 1000000
 
+    --- Apodo y descripción
+    Recipe.localised_name = GMOD.copy(space.entity.localised_name)
     Recipe.localised_description = { "" }
 
-    Recipe.localised_name = GMOD.copy(space.entity.localised_name)
-
+    --- Agregar indicador del MOD
     Recipe.icons = GMOD.copy(space.item.icons)
     table.insert(Recipe.icons, This_MOD.indicator)
 
+    --- Receta desbloqueada por tecnología
     Recipe.enabled = space.tech == nil
 
-    Recipe.subgroup = space.subgroup
+    --- Tiempo de fabricación
+    Recipe.energy_required = 3 * Recipe.energy_required
 
-    local Order = tonumber(Recipe.order) + 1
-    Recipe.order = GMOD.pad_left_zeros(#Recipe.order, Order)
-
-    Recipe.energy_required = This_MOD.setting.time
-
+    --- Resultados
     Recipe.results = { {
         type = "item",
-        name = Recipe.name,
+        name = space.name,
         amount = 1
     } }
 
+    --- Ingredientes
     Recipe.ingredients = { {
         type = "item",
         name = space.item.name,
@@ -455,25 +456,30 @@ function This_MOD.create_tech(space)
     --- Cambiar algunas propiedades
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
-    Tech.name = space.prefix .. "-tech"
+    --- Nombre
+    Tech.name = space.name .. "-tech"
 
-    if not GMOD.has_id(space.tech.name, "i5MOD03") then
+    --- Cambiar icono
+    if not GMOD.has_id(space.tech.name, "d03b") then
         Tech.icons = GMOD.copy(space.item.icons)
     end
     table.insert(Tech.icons, This_MOD.indicator_tech_bg)
     table.insert(Tech.icons, This_MOD.indicator_tech)
 
-    Tech.localised_name = GMOD.copy(space.entity.localised_name)
 
+    --- Apodo y descripción
+    Tech.localised_name = GMOD.copy(space.entity.localised_name)
     Tech.localised_description = { "" }
 
     Tech.prerequisites = { space.tech.name }
 
+    --- Tech previas
     Tech.effects = { {
         type = "unlock-recipe",
-        recipe = space.prefix
+        recipe = space.name
     } }
 
+    --- Tech se activa con una fabricación
     if Tech.research_trigger then
         Tech.research_trigger = {
             type = "craft-item",
