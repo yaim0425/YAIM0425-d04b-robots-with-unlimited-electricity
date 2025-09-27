@@ -86,13 +86,11 @@ function This_MOD.setting_mod()
     This_MOD.setting = GMOD.setting[This_MOD.id] or {}
 
     --- Indicador del mod
-    local Indicator = data.raw["virtual-signal"]["signal-battery-full"].icons[1].icon
+    This_MOD.indicator = { icon = GMOD.signal["battery-full"], scale = 0.15, shift = { 12, 0 } }
+    This_MOD.indicator_bg = { icon = GMOD.signal.black, scale = 0.15, shift = { 12, 0 } }
 
-    This_MOD.indicator = { icon = Indicator, scale = 0.15, shift = { 12, 0 } }
-    This_MOD.indicator_bg = { icon = GMOD.color.black, scale = 0.15, shift = { 12, 0 } }
-
-    This_MOD.indicator_tech = { icon = Indicator, scale = 0.50, shift = { 50, 0 } }
-    This_MOD.indicator_tech_bg = { icon = GMOD.color.black, scale = 0.50, shift = { 50, 0 } }
+    This_MOD.indicator_tech = { icon = GMOD.signal["battery-full"], scale = 0.50, shift = { 50, 0 } }
+    This_MOD.indicator_tech_bg = { icon = GMOD.signal.black, scale = 0.50, shift = { 50, 0 } }
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
