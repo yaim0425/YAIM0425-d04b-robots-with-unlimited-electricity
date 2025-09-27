@@ -455,12 +455,28 @@ function This_MOD.create_tech(space)
     table.insert(Tech.icons, This_MOD.indicator_tech_bg)
     table.insert(Tech.icons, This_MOD.indicator_tech)
 
-
     --- Apodo y descripción
     Tech.localised_name = GMOD.copy(space.entity.localised_name)
     Tech.localised_description = { "" }
 
+    --- Tech previas
     Tech.prerequisites = { space.tech.name }
+
+    --- Tech previas adicionales para todas las inmunidades
+    if
+        GMOD.has_id(space.tech.name, "d03b") and
+        GMOD.has_id(space.tech.name, "all")
+    then
+        for damage, _ in pairs(data.raw["damage-type"]) do
+            --- La tecnología del daño
+            local Tech_previas_name = space.tech.name
+            Tech_previas_name = Tech_previas_name:gsub("all", damage)
+            Tech_previas_name = Tech_previas_name:gsub("d03b", "d03b-" .. This_MOD.id)
+
+            --- Agregar la tecnología previa
+            table.insert(Tech.prerequisites, Tech_previas_name)
+        end
+    end
 
     --- Tech previas
     Tech.effects = { {
