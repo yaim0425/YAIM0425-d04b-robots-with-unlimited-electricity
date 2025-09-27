@@ -12,7 +12,7 @@
 
 local This_MOD = GMOD.get_id_and_name()
 if not This_MOD then return end
-GMOD[This_MOD.id] = This_MOD
+table.insert(GMOD.MODs, This_MOD)
 
 ---------------------------------------------------------------------------
 
@@ -51,6 +51,15 @@ function This_MOD.start()
             This_MOD.create_tech(space)
 
             --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+        end
+    end
+
+    --- Recorrer los MODs activados
+    if GMOD.MODs[#GMOD.MODs] == This_MOD then
+        for _, That_MOD in pairs(GMOD.MODs) do
+            if That_MOD ~= This_MOD then
+                That_MOD.start()
+            end
         end
     end
 
