@@ -139,6 +139,7 @@ function This_MOD.get_elements()
 
         --- Validar si ya fue procesado
         if GMOD.has_id(entity.name, This_MOD.id) then return end
+
         local That_MOD =
             GMOD.get_id_and_name(entity.name) or
             { ids = "-", name = entity.name }
@@ -401,21 +402,18 @@ function This_MOD.create_recipe(space)
         amount = 1
     } }
 
-    --- Ingredientes adicionales por tipo de daño
-    if
-        GMOD.has_id(space.recipe.name, "d03b") and
-        space.recipe.name:find("%-all$") ~= nil
-    then
-        for damage, _ in pairs(data.raw["damage-type"]) do
-            --- La tecnología del daño
-            local Ingredient = space.recipe.name
-            Ingredient = Ingredient:gsub("all", damage)
-            Ingredient = Ingredient:gsub("d03b", "d03b-" .. This_MOD.id)
+    if GMOD.has_id(space.recipe.name, "d03b") then
+        for _, ingredient in ipairs(space.recipe.ingredients) do
+            local That_MOD =
+                GMOD.get_id_and_name(ingredient.name) or
+                { ids = "-", name = ingredient.name }
 
-            --- Agregar la tecnología previa
             table.insert(Recipe.ingredients, {
                 type = "item",
-                name = Ingredient,
+                name =
+                    GMOD.name .. That_MOD.ids ..
+                    This_MOD.id .. "-" ..
+                    That_MOD.name,
                 amount = 1
             })
         end
@@ -482,19 +480,30 @@ function This_MOD.create_tech(space)
     --- Tech previas
     Tech.prerequisites = { space.tech.name }
 
-    --- Tech previas adicionales por tipo de daño
-    if
-        GMOD.has_id(space.tech.name, "d03b") and
-        GMOD.has_id(space.tech.name, "all")
-    then
-        for damage, _ in pairs(data.raw["damage-type"]) do
-            --- La tecnología del daño
-            local Tech_previas_name = space.tech.name
-            Tech_previas_name = Tech_previas_name:gsub("all", damage)
-            Tech_previas_name = Tech_previas_name:gsub("d03b", "d03b-" .. This_MOD.id)
+    if GMOD.has_id(space.tech.name, "d03b") then
+        if GMOD.has_id(space.tech.name, "all") then
+            for damage, _ in pairs(data.raw["damage-type"]) do
+                --- La tecnología del daño
+                local Tech_previas_name = space.tech.name
+                Tech_previas_name = Tech_previas_name:gsub("all", damage)
+                Tech_previas_name = Tech_previas_name:gsub("d03b", "d03b-" .. This_MOD.id)
 
-            --- Agregar la tecnología previa
-            table.insert(Tech.prerequisites, Tech_previas_name)
+                --- Agregar la tecnología previa
+                table.insert(Tech.prerequisites, Tech_previas_name)
+            end
+        else
+            --- Tech para una inmunidad específica
+            for _, ingredient in ipairs(space.recipe.ingredients) do
+                local That_MOD =
+                    GMOD.get_id_and_name(ingredient.name) or
+                    { ids = "-", name = ingredient.name }
+
+                table.insert(Tech.prerequisites,
+                    GMOD.name .. That_MOD.ids ..
+                    This_MOD.id .. "-" ..
+                    That_MOD.name .. "-tech"
+                )
+            end
         end
     end
 
