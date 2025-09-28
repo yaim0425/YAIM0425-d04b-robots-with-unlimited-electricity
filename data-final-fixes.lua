@@ -401,6 +401,26 @@ function This_MOD.create_recipe(space)
         amount = 1
     } }
 
+    --- Ingredientes adicionales por tipo de daño
+    if
+        GMOD.has_id(space.recipe.name, "d03b") and
+        space.recipe.name:find("%-all$") ~= nil
+    then
+        for damage, _ in pairs(data.raw["damage-type"]) do
+            --- La tecnología del daño
+            local Ingredient = space.recipe.name
+            Ingredient = Ingredient:gsub("all", damage)
+            Ingredient = Ingredient:gsub("d03b", "d03b-" .. This_MOD.id)
+
+            --- Agregar la tecnología previa
+            table.insert(Recipe.ingredients, {
+                type = "item",
+                name = Ingredient,
+                amount = 1
+            })
+        end
+    end
+
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
 
@@ -462,7 +482,7 @@ function This_MOD.create_tech(space)
     --- Tech previas
     Tech.prerequisites = { space.tech.name }
 
-    --- Tech previas adicionales para todas las inmunidades
+    --- Tech previas adicionales por tipo de daño
     if
         GMOD.has_id(space.tech.name, "d03b") and
         GMOD.has_id(space.tech.name, "all")
