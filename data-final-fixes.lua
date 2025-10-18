@@ -40,6 +40,9 @@ function This_MOD.start()
         end
     end
 
+    --- Fijar las posiciones actual
+    GMOD.d00b.change_orders()
+
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 end
 
@@ -230,9 +233,37 @@ function This_MOD.create_item(space)
     --- Entidad a crear
     Item.place_result = space.name
 
-    --- Actualizar el order
-    local Order = tonumber(Item.order) + 1
-    Item.order = GMOD.pad_left_zeros(#Item.order, Order)
+    --- Nombre del nuevo subgrupo
+    That_MOD =
+        GMOD.get_id_and_name(Item.subgroup) or
+        { ids = "-", name = Item.subgroup }
+
+    Item.subgroup =
+        GMOD.name .. That_MOD.ids ..
+        This_MOD.id .. "-" ..
+        That_MOD.name
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+
+
+
+
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    --- Crear el subgrupo para el objeto
+    --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+    --- Duplicar el subgrupo
+    if not GMOD.subgroups[Item.subgroup] then
+        GMOD.duplicate_subgroup(space.item.subgroup, Item.subgroup)
+
+        --- Renombrar
+        local Subgroup = GMOD.subgroups[Item.subgroup]
+        local Order = GMOD.subgroups[space.item.subgroup].order
+
+        --- Actualizar el order
+        Subgroup.order = 1 .. Order:sub(2)
+    end
 
     --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -352,10 +383,6 @@ function This_MOD.create_recipe(space)
     --- Elimnar propiedades inecesarias
     Recipe.main_product = nil
 
-    --- Productividad
-    Recipe.allow_productivity = true
-    Recipe.maximum_productivity = 1000000
-
     --- Apodo y descripción
     Recipe.localised_name = GMOD.copy(space.entity.localised_name)
     Recipe.localised_description = { "" }
@@ -366,6 +393,9 @@ function This_MOD.create_recipe(space)
 
     --- Receta desbloqueada por tecnología
     Recipe.enabled = space.tech == nil
+
+    --- Nombre del nuevo subgrupo
+    Recipe.subgroup = GMOD.items[space.name].subgroup
 
     --- Tiempo de fabricación
     Recipe.energy_required = 3 * Recipe.energy_required
