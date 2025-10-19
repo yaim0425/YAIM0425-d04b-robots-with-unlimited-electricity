@@ -134,7 +134,7 @@ function This_MOD.get_elements()
             This_MOD.id .. "-" ..
             That_MOD.name
 
-        if GMOD.entities[Name] ~= nil then return end
+        if GMOD.entities[Name] then return end
 
         --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
